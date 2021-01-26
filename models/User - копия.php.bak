@@ -1,0 +1,326 @@
+<?php
+
+namespace app\models;
+
+use Yii;
+use Yii\base\NotSupportedException;
+use Yii\behaviors\TimestampBehavior;
+use Yii\db\ActiveRecord;
+use yii\web\IdentityInterface;
+
+/**
+ * This is the model class for table "user".
+ *
+ * @property int $id
+ * @property string $username
+ * @property string $auth_key
+ * @property string|null $password_reset_token
+ * @property int $status
+ * @property int $created_at
+ * @property int $updated_at
+ * @property string $name
+ * @property string $surname
+ * @property string $birthdate
+ * @property string $email
+ * @property string $password_hash
+ * @property string $register_date
+ * @property string $last_login
+ * @property string $last_ip
+ * @property int $groups
+ * @property int $reputation
+ *
+ * @property Comment[] $comments
+ * @property CommentsReputationChange[] $commentsReputationChanges
+ * @property DiaryComment[] $diaryComments
+ * @property DiaryCommentsReputationChange[] $diaryCommentsReputationChanges
+ * @property DiaryPost[] $diaryPosts
+ * @property DiaryPostsReputationChange[] $diaryPostsReputationChanges
+ * @property Game[] $games
+ * @property PersonalMessage[] $personalMessages
+ * @property PersonalMessage[] $personalMessages0
+ * @property PurchasedGame[] $purchasedGames
+ * @property Review[] $reviews
+ * @property ReviewsReputationChange[] $reviewsReputationChanges
+ * @property Group $groups0
+ * @property UsersTeam[] $usersTeams
+ * @property string $password write-only password
+ */
+class User extends \yii\db\ActiveRecord implements IdentityInterface
+{
+	const STATUS_DELETED = 0;
+    const STATUS_ACTIVE = 10;
+    /**
+     * {@inheritdoc}
+     */
+    public static function tableName()
+    {
+        return 'user';
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function rules()
+    {
+        return [
+            [['username', 'auth_key', 'created_at', 'updated_at', 'name', 'surname', 'birthdate', 'email', 'password_hash', 'register_date', 'last_ip', 'groups', 'reputation'], 'required'],
+            [['status', 'created_at', 'updated_at', 'groups', 'reputation'], 'integer'],
+            [['birthdate', 'register_date', 'last_login'], 'safe'],
+            [['username', 'name', 'surname', 'email'], 'string', 'max' => 100],
+            [['auth_key'], 'string', 'max' => 32],
+            [['password_reset_token'], 'string', 'max' => 80],
+            [['password_hash'], 'string', 'max' => 256],
+            [['last_ip'], 'string', 'max' => 16],
+            [['password_reset_token'], 'unique'],
+            [['groups'], 'exist', 'skipOnError' => true, 'targetClass' => Group::className(), 'targetAttribute' => ['groups' => 'id']],
+			['status', 'default', 'value' => self::STATUS_ACTIVE],
+            ['status', 'in', 'range' => [self::STATUS_ACTIVE, self::STATUS_DELETED]],
+        ];
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function attributeLabels()
+    {
+        return [
+            'id' => 'ID',
+            'username' => 'Username',
+            'auth_key' => 'Auth Key',
+            'password_reset_token' => 'Password Reset Token',
+            'status' => 'Status',
+            'created_at' => 'Created At',
+            'updated_at' => 'Updated At',
+            'name' => 'Name',
+            'surname' => 'Surname',
+            'birthdate' => 'Birthdate',
+            'email' => 'Email',
+            'password_hash' => 'Password Hash',
+            'register_date' => 'Register Date',
+            'last_login' => 'Last Login',
+            'last_ip' => 'Last Ip',
+            'groups' => 'Groups',
+            'reputation' => 'Reputation',
+        ];
+    }
+
+    /**
+     * Gets query for [[Comments]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getComments()
+    {
+        return $this->hasMany(Comment::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[CommentsReputationChanges]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getCommentsReputationChanges()
+    {
+        return $this->hasMany(CommentsReputationChange::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[DiaryComments]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDiaryComments()
+    {
+        return $this->hasMany(DiaryComment::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[DiaryCommentsReputationChanges]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDiaryCommentsReputationChanges()
+    {
+        return $this->hasMany(DiaryCommentsReputationChange::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[DiaryPosts]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDiaryPosts()
+    {
+        return $this->hasMany(DiaryPost::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[DiaryPostsReputationChanges]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getDiaryPostsReputationChanges()
+    {
+        return $this->hasMany(DiaryPostsReputationChange::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Games]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getGames()
+    {
+        return $this->hasMany(Game::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[PersonalMessages]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPersonalMessages()
+    {
+        return $this->hasMany(PersonalMessage::className(), ['user_from' => 'id']);
+    }
+
+    /**
+     * Gets query for [[PersonalMessages0]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPersonalMessages0()
+    {
+        return $this->hasMany(PersonalMessage::className(), ['user_to' => 'id']);
+    }
+
+    /**
+     * Gets query for [[PurchasedGames]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getPurchasedGames()
+    {
+        return $this->hasMany(PurchasedGame::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Reviews]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getReviews()
+    {
+        return $this->hasMany(Review::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[ReviewsReputationChanges]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getReviewsReputationChanges()
+    {
+        return $this->hasMany(ReviewsReputationChange::className(), ['user_id' => 'id']);
+    }
+
+    /**
+     * Gets query for [[Groups0]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getGroups0()
+    {
+        return $this->hasOne(Group::className(), ['id' => 'groups']);
+    }
+
+    /**
+     * Gets query for [[UsersTeams]].
+     *
+     * @return \yii\db\ActiveQuery
+     */
+    public function getUsersTeams()
+    {
+        return $this->hasMany(UsersTeam::className(), ['user_id' => 'id']);
+    }
+	
+	/**
+     * @inheritdoc
+     */
+    public static function findIdentity($id)
+    {
+        return static::findOne(['id' => $id, 'status' => self::STATUS_ACTIVE]);
+    }
+ 
+    /**
+     * @inheritdoc
+     */
+    public static function findIdentityByAccessToken($token, $type = null)
+    {
+        throw new NotSupportedException('"findIdentityByAccessToken" is not implemented.');
+    }
+ 
+    /**
+     * Finds user by username
+     *
+     * @param string $username
+     * @return static|null
+     */
+    public static function findByUsername($username)
+    {
+        return static::findOne(['username' => $username, 'status' => self::STATUS_ACTIVE]);
+    }
+ 
+    /**
+     * @inheritdoc
+     */
+    public function getId()
+    {
+        return $this->getPrimaryKey();
+    }
+ 
+    /**
+     * @inheritdoc
+     */
+    public function getAuthKey()
+    {
+        return $this->auth_key;
+    }
+ 
+    /**
+     * @inheritdoc
+     */
+    public function validateAuthKey($authKey)
+    {
+        return $this->getAuthKey() === $authKey;
+    }
+ 
+    /**
+     * Validates password
+     *
+     * @param string $password password to validate
+     * @return bool if password provided is valid for current user
+     */
+    public function validatePassword($password)
+    {
+        return Yii::$app->security->validatePassword($password, $this->password_hash);
+    }
+ 
+    /**
+     * Generates password hash from password and sets it to the model
+     *
+     * @param string $password
+     */
+    public function setPassword($password)
+    {
+        $this->password_hash = Yii::$app->security->generatePasswordHash($password);
+    }
+ 
+    /**
+     * Generates "remember me" authentication key
+     */
+    public function generateAuthKey()
+    {
+        $this->auth_key = Yii::$app->security->generateRandomString();
+    }
+}
