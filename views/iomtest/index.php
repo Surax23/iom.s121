@@ -21,6 +21,12 @@ $this->params['breadcrumbs'][] = $this->title;
 
 	<h1><?= Html::encode($this->title) ?></h1>
 
+	<div class="alert alert-info" role="alert">
+    <span class="glyphicon glyphicon-pencil"></span> &mdash; ИОМ необходимо заполнить;<br />
+    <span class="glyphicon glyphicon-ok"></span> &mdash; ИОМ заполнен, возможно просмотреть.<br />
+	Отсутствие значка в графе этапа означает отсутствие назначения вас на этот этап.
+    </div>
+
 	<?php Pjax::begin(); ?>
 
 	<?= GridView::widget([

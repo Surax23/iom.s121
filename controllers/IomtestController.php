@@ -100,7 +100,7 @@ class IomtestController extends Controller
 				foreach ($sk_ch as $sk) {
 					$sk->save(false);
 				}
-				$tmp_model = StudentCheckByTeacher::findOne($stage);
+				$tmp_model = StudentCheckByTeacher::findOne($last_app);
 				$tmp_model->status = 1;
 				$tmp_model->save(false);
 				Yii::$app->session->setFlash('success', '<h5>Сохранено!</h5>');

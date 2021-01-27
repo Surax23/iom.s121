@@ -20,6 +20,13 @@ $this->params['breadcrumbs'][] = $this->title;
 
     <h1><?= Html::encode($this->title) ?></h1>
 
+    <div class="alert alert-info" role="alert">
+    Формат статуса: "фамилия, номер этапа: состояние".<br />
+    <span class="glyphicon glyphicon-remove"></span> &mdash; не приступал(а) к заполнению;<br />
+    <span class="glyphicon glyphicon-pencil"></span> &mdash; в процессе заполнения;<br />
+    <span class="glyphicon glyphicon-ok"></span> &mdash; заполнение закончено.<br />
+    </div>
+
     <p>
         <?= Html::a('Создать', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
@@ -33,11 +40,18 @@ $this->params['breadcrumbs'][] = $this->title;
             ['class' => 'yii\grid\SerialColumn'],
             ['class' => 'yii\grid\ActionColumn','header'=>"Действия"],
             //'id',
-            'name',
-            'class',
+            [
+                'attribute' => 'name',
+                'headerOptions' => ['style' => 'width:15%'],
+            ],
+            [
+                'attribute' => 'class',
+                'headerOptions' => ['style' => 'width:10%'],
+            ],
             'birthday',
             [
                'label' => 'Возрастная группа',
+               'headerOptions' => ['style' => 'width:13%'],
                'format' => 'raw',
                'attribute' => 'name',
                //'attribute' => 'age_name',
@@ -61,17 +75,19 @@ $this->params['breadcrumbs'][] = $this->title;
                                     // echo '</pre>';
                                     $family = $super.explode(' ', $user->name)[0];
                                     if ($app->status == 0) {
-                                        $super = $family.': '.$app->stage.' <span class="glyphicon glyphicon-remove"></span><br />';
+                                        $super = $family.', '.$app->stage.': <span class="glyphicon glyphicon-remove"></span><br />';
                                     } elseif ($app->status == 1) {
-                                        $super = $family.': '.$app->stage.' <span class="glyphicon glyphicon-pencil"></span><br />';
+                                        $super = $family.', '.$app->stage.': <span class="glyphicon glyphicon-pencil"></span><br />';
                                     } elseif ($app->status == 2) {
-                                        $super = $family.': '.$app->stage.' <span class="glyphicon glyphicon-ok"></span><br />';
+                                        $super = $family.', '.$app->stage.': <span class="glyphicon glyphicon-ok"></span><br />';
                                     }
+                                    
                                 }
                         }
+                        
                     }
                     if ($super == '')
-                        return '&mdash;';
+                        return 'Назначений нет.';
                     else
                         return $super;
                 }
@@ -88,6 +104,33 @@ $this->params['breadcrumbs'][] = $this->title;
                         .Html::a('<span class="glyphicon glyphicon-ban-circle"></span>', Url::to(['students/clear',
                         'id' => $data->id]), ['class' => '', 'data' => ['confirm' => 'Вы действительно хотите
                         очистить все назначения? С назначениеями удалятся уже проставленные навыки. Вернуть все будет невозможно.']]);//Url::to(['students/clear', 'id' => $data->id], ['class' => '', 'data' => ['confirm' => 'Вы действительно хотите очистить все назначения? Вернуться к изменениям будет нельзя.']]));
+                }
+            ],
+            [
+                // glyphicon glyphicon-print
+                'label' => 'Печать',
+                'format' => 'raw',
+                'value' => function ($data) { //glyphicon glyphicon-search
+                    return 'Этап 1: '.Html::a('<span class="glyphicon glyphicon-search"></span>', 
+                                Url::to(['students/print', 'id' => $data->id, 'stage' => 1]), ['data-pjax' => 0]).' '
+                               .Html::a('<span class="glyphicon glyphicon-download-alt"></span>', 
+                                    Url::to(['students/download', 'id' => $data->id, 'stage' => 1]), ['data-pjax' => 0]).'<br />'
+
+//Html::a('<span class="glyphicon glyphicon-print"></span>', Url::to(['students/download', 'string' => $string])); 
+
+
+                          .'Этап 2: '.Html::a('<span class="glyphicon glyphicon-search"></span>', 
+                                Url::to(['students/print', 'id' => $data->id, 'stage' => 2]), ['data-pjax' => 0]).' '
+                                .Html::a('<span class="glyphicon glyphicon-download-alt"></span>', 
+                                     Url::to(['students/download', 'id' => $data->id, 'stage' => 2]), ['data-pjax' => 0]).'<br />'
+
+                          .'Этап 3: '.Html::a('<span class="glyphicon glyphicon-search"></span>', 
+                                Url::to(['students/print', 'id' => $data->id, 'stage' => 3]), ['data-pjax' => 0]).' '
+                                .Html::a('<span class="glyphicon glyphicon-download-alt"></span>', 
+                                     Url::to(['students/download', 'id' => $data->id, 'stage' => 3]), ['data-pjax' => 0]).'<br />';
+
+                          //.'Итог: '.Html::a('<span class="glyphicon glyphicon-print"></span>', 
+                          //      Url::to(['students/print', 'id' => $data->id])).'<br />';
                 }
             ],
         ],

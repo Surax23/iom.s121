@@ -71,7 +71,7 @@ foreach ($models as $index=>$md) {
 							echo '<h3 style="margin: 10px 0 -5px -20px;">Направление развития: '.$cat->name.'</h3>';
 						}
 				}
-			echo $form->field($md, "[$index]value")->dropDownList($vars,$params)->label($md->skills->skill_name);
+			echo $form->field($md, "[$index]value")->dropDownList($vars,$params)->label($md->skills->skill_name.' '.$md->skills->id);
 		}
 } ?>
 
